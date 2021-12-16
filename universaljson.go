@@ -31,20 +31,6 @@ func (json *UniversalJSON) GetFloat64(fieldname string) (float64, error) {
 		return 0, errors.New(fmt.Sprintf("Field:%s not found.", fieldname))
 	}
 	return ret.Float(), nil
-	// root := reflect.ValueOf(json.rawData)
-
-	// for _, k := range root.MapKeys() {
-	// 	s_k := k.String()
-
-	// 	if k.String() == fieldname {
-	// 		value := reflect.ValueOf(s_k)
-	// 		if reflect.ValueOf(root.MapIndex(value).Interface()).Kind() == reflect.Float64 {
-	// 			return reflect.ValueOf(root.MapIndex(value).Interface()).Float()
-	// 		}
-	// 	}
-	// }
-
-	// return -1
 }
 
 func (json *UniversalJSON) GetInt64(fieldname string) (int64, error) {
@@ -59,29 +45,59 @@ func (json *UniversalJSON) GetInt64(fieldname string) (int64, error) {
 	}
 }
 
+func (json *UniversalJSON) GetObject(fieldname string) *UniversalJSON {
+	var (
+		next_json *UniversalJSON
+	)
+	ret := json.getValue(fieldname)
+	if ret == reflect.ValueOf(nil) {
+		return nil
+	}
+
+	if ret.Kind() == reflect.Map {
+		next_json = new(UniversalJSON)
+		next_json.rawData = ret.Interface()
+	}
+
+	return next_json
+}
+
 func (json *UniversalJSON) GetArray(fieldname string) []*UniversalJSON {
 	var (
 		next_json []*UniversalJSON
 	)
 
-	root := reflect.ValueOf(json.rawData)
+	ret := json.getValue(fieldname)
+	if ret == reflect.ValueOf(nil) {
+		return nil
+	}
 
-	for _, k := range root.MapKeys() {
-		s_k := k.String()
-
-		if k.String() == fieldname {
-			value := reflect.ValueOf(s_k)
-			if reflect.ValueOf(root.MapIndex(value).Interface()).Kind() == reflect.Slice {
-				nums := reflect.ValueOf(root.MapIndex(value).Interface()).Len()
-				next_json = make([]*UniversalJSON, nums)
-				for i := 0; i < nums; i++ {
-					// fmt.Println(reflect.ValueOf(root.MapIndex(value).Interface()).Index(i).Interface())
-					next_json[i] = new(UniversalJSON)
-					next_json[i].rawData = reflect.ValueOf(root.MapIndex(value).Interface()).Index(i).Interface()
-				}
-			}
+	if ret.Kind() == reflect.Slice {
+		nums := ret.Len()
+		next_json = make([]*UniversalJSON, nums)
+		for i := 0; i < nums; i++ {
+			next_json[i] = new(UniversalJSON)
+			next_json[i].rawData = ret.Index(i).Interface()
 		}
 	}
+
+	// root := reflect.ValueOf(json.rawData)
+
+	// for _, k := range root.MapKeys() {
+	// 	s_k := k.String()
+
+	// 	if k.String() == fieldname {
+	// 		value := reflect.ValueOf(s_k)
+	// 		if reflect.ValueOf(root.MapIndex(value).Interface()).Kind() == reflect.Slice {
+	// 			nums := reflect.ValueOf(root.MapIndex(value).Interface()).Len()
+	// 			next_json = make([]*UniversalJSON, nums)
+	// 			for i := 0; i < nums; i++ {
+	// 				next_json[i] = new(UniversalJSON)
+	// 				next_json[i].rawData = reflect.ValueOf(root.MapIndex(value).Interface()).Index(i).Interface()
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	return next_json
 }
@@ -109,7 +125,6 @@ func ParseJSON(v interface{}) *UniversalJSON {
 		}
 		uj.rawData = x
 	case *string:
-		fmt.Println("*string")
 		if err = json.Unmarshal([]byte(*t), &x); err != nil {
 			return nil
 		}
