@@ -16,22 +16,11 @@ var (
 	data = `{
 		"store_code": "xGpS0mPbNqo5FMQcdTk4nR1DJr9LUEfa",
 		"main_orderno": "LWM2112149515095973",
-		"payment_method":4,
-		"orderno": "LWS2112148253015566",
-		"fictitious_id": "4",
-		"platform": 1,
-		"is_expedited": 0,
-		"is_topay": 0,
-		"storage":0,
 		"attach_info": [],
 		"pay_money": 1.01,
 		"country":"中国",
 		"province": "重庆",
 		"city": "重庆市",
-		"town": "渝北区",
-		"address": "XXX街道XXX小区XXX单元X-X",
-		"receiver_name": "张三",
-		"receiver_phone": "13456789100",
 		"logistics_id": 2,
 		"product": [{
 			"goods_code": "010046701091",
@@ -75,4 +64,12 @@ func main() {
 	}
 }
 
+```
+```go
+s := `{"error_code":-1,"error_msg":"订单未支付，请稍后再试","data":{"main_order_no":"LWM2112149515095973","sub_order_no":"LWS2112148253015566"}}`
+
+e, err := universaljson.ParseJSON(s).GetObject("data").GetString("main_order_no")
+if err == nil {
+   fmt.Println(e)
+}
 ```
