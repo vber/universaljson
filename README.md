@@ -8,7 +8,7 @@ package main
 
 import (
 	"fmt"
-	"github-universaljson/universaljson"
+	"github.com/vber/universaljson"
 )
 
 var (
