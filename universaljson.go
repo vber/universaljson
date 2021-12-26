@@ -81,24 +81,6 @@ func (json *UniversalJSON) GetArray(fieldname string) []*UniversalJSON {
 		}
 	}
 
-	// root := reflect.ValueOf(json.rawData)
-
-	// for _, k := range root.MapKeys() {
-	// 	s_k := k.String()
-
-	// 	if k.String() == fieldname {
-	// 		value := reflect.ValueOf(s_k)
-	// 		if reflect.ValueOf(root.MapIndex(value).Interface()).Kind() == reflect.Slice {
-	// 			nums := reflect.ValueOf(root.MapIndex(value).Interface()).Len()
-	// 			next_json = make([]*UniversalJSON, nums)
-	// 			for i := 0; i < nums; i++ {
-	// 				next_json[i] = new(UniversalJSON)
-	// 				next_json[i].rawData = reflect.ValueOf(root.MapIndex(value).Interface()).Index(i).Interface()
-	// 			}
-	// 		}
-	// 	}
-	// }
-
 	return next_json
 }
 
@@ -126,6 +108,11 @@ func ParseJSON(v interface{}) *UniversalJSON {
 		uj.rawData = x
 	case *string:
 		if err = json.Unmarshal([]byte(*t), &x); err != nil {
+			return nil
+		}
+		uj.rawData = x
+	case []byte:
+		if err = json.Unmarshal(t, &x); err != nil {
 			return nil
 		}
 		uj.rawData = x
